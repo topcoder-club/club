@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"gohub/pkg/cache"
 	"gohub/pkg/config"
+	"gohub/pkg/redis"
 )
 
 // SetupCache 缓存
@@ -17,6 +18,12 @@ func initWith(cacheType string) cache.Store {
 	var instance cache.Store
 	switch cacheType {
 	case "redis":
+		redis.ConnectRedis(
+			fmt.Sprintf("%v:%v", config.GetString("redis.host"), config.GetString("redis.port")),
+			config.GetString("redis.username"),
+			config.GetString("redis.password"),
+			config.GetInt("redis.database"),
+		)
 		instance = cache.NewRedisStore(
 			fmt.Sprintf("%v:%v", config.GetString("redis.host"), config.GetString("redis.port")),
 			config.GetString("redis.username"),
