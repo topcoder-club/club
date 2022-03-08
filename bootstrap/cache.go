@@ -9,14 +9,22 @@ import (
 
 // SetupCache 缓存
 func SetupCache() {
+	instance := initWith("default")
+	cache.InitWithCacheStore(instance)
+}
 
-	// 初始化缓存专用的 redis client, 使用专属缓存 DB
-	rds := cache.NewRedisStore(
-		fmt.Sprintf("%v:%v", config.GetString("redis.host"), config.GetString("redis.port")),
-		config.GetString("redis.username"),
-		config.GetString("redis.password"),
-		config.GetInt("redis.database_cache"),
-	)
-
-	cache.InitWithCacheStore(rds)
+func initWith(cacheType string) cache.Store {
+	var instance cache.Store
+	switch cacheType {
+	case "redis":
+		instance = cache.NewRedisStore(
+			fmt.Sprintf("%v:%v", config.GetString("redis.host"), config.GetString("redis.port")),
+			config.GetString("redis.username"),
+			config.GetString("redis.password"),
+			config.GetInt("redis.database_cache"),
+		)
+	default:
+		instance = cache.NewRistrettoStore()
+	}
+	return instance
 }
